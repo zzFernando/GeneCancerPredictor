@@ -1,3 +1,9 @@
+#Datasets and models
+Liver_GSE14520_U133A.csv
+Liver_GSE14520_U133_2.csv
+best_random_forest_model.pkl
+random_forest_model.pkl
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
