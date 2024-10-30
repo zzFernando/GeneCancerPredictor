@@ -40,10 +40,11 @@ pipeline = Pipeline([
 param_grid = {
     'classifier__n_estimators': [100, 200],
     'classifier__max_depth': [10, 20, None],
-    'classifier__min_samples_split': [5, 10],
-    'classifier__min_samples_leaf': [2, 4],
+    'classifier__min_samples_split': [2, 5],
+    'classifier__min_samples_leaf': [1, 2],
     'classifier__max_features': ['sqrt'],
-    'classifier__class_weight': ['balanced']
+    'classifier__class_weight': ['balanced'],
+    'classifier__criterion': ['gini']
 }
 
 # Configura o GridSearchCV com o pipeline
