@@ -7,6 +7,10 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.model_selection import learning_curve, validation_curve
 
 # Configuração do caminho do dataset
 dataset_url = "https://sbcb.inf.ufrgs.br/data/cumida/Genes/Liver/GSE14520_U133A/Liver_GSE14520_U133A.csv"
@@ -83,3 +87,62 @@ print(feature_importances.sort_values(by='Importance', ascending=False).head(10)
 # Salva o melhor modelo treinado
 joblib.dump(grid_search.best_estimator_, 'best_random_forest_model.pkl')
 print("Melhor modelo salvo como 'best_random_forest_model.pkl'.")
+
+# Configurações gerais para gráficos
+plt.style.use('ggplot')
+plt.rcParams['figure.figsize'] = (10, 6)
+
+# 1. Matriz de Confusão
+def plot_confusion_matrix(y_test, y_pred):
+    print("\nMatriz de Confusão:")
+    ConfusionMatrixDisplay.from_predictions(y_test, y_pred, cmap="Blues")
+    plt.title("Matriz de Confusão")
+    plt.show()
+
+plot_confusion_matrix(y_test, y_pred)
+
+# 2. Importância das Features
+def plot_feature_importance(feature_importances):
+    print("\nAs 10 features mais importantes:")
+    top_features = feature_importances.sort_values(by='Importance', ascending=False).head(10)
+    sns.barplot(x=top_features['Importance'], y=top_features.index)
+    plt.title("Top 10 Features Mais Importantes")
+    plt.xlabel("Importância")
+    plt.ylabel("Features")
+    plt.show()
+
+plot_feature_importance(feature_importances)
+
+# 3. Curva de Aprendizado
+def plot_learning_curve(estimator, X_train, y_train):
+    train_sizes, train_scores, test_scores = learning_curve(estimator, X_train, y_train, cv=5, scoring='accuracy', n_jobs=-1)
+    train_scores_mean = train_scores.mean(axis=1)
+    test_scores_mean = test_scores.mean(axis=1)
+
+    plt.plot(train_sizes, train_scores_mean, label="Acurácia Treino")
+    plt.plot(train_sizes, test_scores_mean, label="Acurácia Validação")
+    plt.title("Curva de Aprendizado")
+    plt.xlabel("Tamanho do Conjunto de Treinamento")
+    plt.ylabel("Acurácia")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+plot_learning_curve(grid_search.best_estimator_, X_train, y_train)
+
+# 4. Curva de Validação para `n_estimators`
+def plot_validation_curve(estimator, X_train, y_train, param_name, param_range):
+    train_scores, test_scores = validation_curve(estimator, X_train, y_train, param_name=param_name, param_range=param_range, cv=5, scoring="accuracy", n_jobs=-1)
+    train_scores_mean = train_scores.mean(axis=1)
+    test_scores_mean = test_scores.mean(axis=1)
+
+    plt.plot(param_range, train_scores_mean, label="Acurácia Treino")
+    plt.plot(param_range, test_scores_mean, label="Acurácia Validação")
+    plt.title(f"Curva de Validação ({param_name})")
+    plt.xlabel(param_name)
+    plt.ylabel("Acurácia")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+plot_validation_curve(grid_search.best_estimator_, X_train, y_train, "classifier__n_estimators", param_range=[50, 100, 150, 200, 250])
