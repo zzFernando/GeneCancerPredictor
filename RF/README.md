@@ -100,13 +100,13 @@ O código produz as seguintes visualizações e relatórios:
 1. **Requisitos**  
    Instale as dependências necessárias com o seguinte comando:
    ```bash
-   pip install pandas scikit-learn matplotlib seaborn joblib
+   pip install -r requirements.txt
    ```
 
 2. **Executar o Script**  
    Salve o código em um arquivo `.py` e execute com:
    ```bash
-   python nome_do_arquivo.py
+   python train.py
    ```
 
 3. **Resultados**  
