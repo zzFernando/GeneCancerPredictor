@@ -140,7 +140,7 @@ results = Parallel(n_jobs=4)(
 # Save only the best result
 best_result = max(results, key=lambda x: x["Recall"])
 
-with open('best_model_metrics.json', 'w') as f:
+with open('best_fnn_metrics.json', 'w') as f:
     json.dump(best_result, f, indent=4)
 
-print("Best metrics saved to best_model_metrics.json")
+print("Best metrics saved to best_fnn_metrics.json")

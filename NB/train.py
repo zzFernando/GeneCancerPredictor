@@ -1,83 +1,84 @@
 import os
+import json
 import urllib.request
 import pandas as pd
-from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score, roc_curve
-from sklearn.model_selection import train_test_split, GridSearchCV, RepeatedStratifiedKFold
+import numpy as np
+from sklearn.model_selection import StratifiedKFold, ParameterGrid
 from sklearn.naive_bayes import GaussianNB
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_selection import SelectFromModel
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
-import matplotlib.pyplot as plt
-import seaborn as sns
-import joblib
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    confusion_matrix, matthews_corrcoef, mean_absolute_error,
+    mean_squared_error, cohen_kappa_score, classification_report
+)
+from joblib import Parallel, delayed
 
-# Download dataset
-url = "https://sbcb.inf.ufrgs.br/data/cumida/Genes/Liver/GSE14520_U133A/Liver_GSE14520_U133A.csv"
-path = 'Liver_GSE14520_U133A.csv'
-if not os.path.exists(path):
-    urllib.request.urlretrieve(url, path)
+# Dataset configuration
+dataset_url = "https://sbcb.inf.ufrgs.br/data/cumida/Genes/Liver/GSE14520_U133A/Liver_GSE14520_U133A.csv"
+file_path = 'Liver_GSE14520_U133A.csv'
+if not os.path.exists(file_path):
+    urllib.request.urlretrieve(dataset_url, file_path)
+dataset = pd.read_csv(file_path)
 
-# Load data
-data = pd.read_csv(path)
-if not {'samples', 'type'}.issubset(data.columns):
-    exit()
+X, y = dataset.drop(['samples', 'type'], axis=1), dataset['type']
+y_binary = y.map({'HCC': 1, 'normal': 0})
 
-# Encode labels
-encoder = LabelEncoder()
-data['type'] = encoder.fit_transform(data['type'])
+scaler = StandardScaler()
 
-# Prepare data
-X = data.drop(['samples', 'type'], axis=1)
-y = data['type']
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+def process_nb(params, X, y, skf):
+    y_cv_true, y_cv_pred = [], []
 
-# Feature selection
-selector = SelectFromModel(RandomForestClassifier(random_state=42), threshold="mean")
-X_train_sel = selector.fit_transform(X_train, y_train)
-X_val_sel = selector.transform(X_val)
+    for train_idx, test_idx in skf.split(X, y):
+        X_train_cv, X_test_cv = X.iloc[train_idx], X.iloc[test_idx]
+        y_train_cv, y_test_cv = y.iloc[train_idx], y.iloc[test_idx]
 
-# Model pipeline
-pipe = Pipeline([('scaler', StandardScaler()), ('clf', GaussianNB())])
-params = {'clf__var_smoothing': [1e-9, 1e-8, 1e-7]}
-cv = RepeatedStratifiedKFold(n_splits=5, n_repeats=3, random_state=42)
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('nb', GaussianNB(var_smoothing=params['var_smoothing']))
+        ])
 
-# Train model
-grid = GridSearchCV(pipe, params, cv=cv, scoring='accuracy', n_jobs=-1, verbose=1)
-grid.fit(X_train_sel, y_train)
+        pipeline.fit(X_train_cv, y_train_cv)
+        y_pred_fold = pipeline.predict(X_test_cv)
 
-# Evaluate
-y_pred = grid.predict(X_val_sel)
-y_prob = grid.predict_proba(X_val_sel)[:, 1]
-acc = (y_pred == y_val).mean()
-roc_auc = roc_auc_score(y_val, y_prob)
-report = classification_report(y_val, y_pred, target_names=encoder.classes_)
-conf_matrix = confusion_matrix(y_val, y_pred)
+        y_cv_true.extend(y_test_cv)
+        y_cv_pred.extend(y_pred_fold)
 
-print(f"Acurácia: {acc:.2f}")
-print(f"ROC AUC: {roc_auc:.2f}")
-print("Relatório de Classificação:\n", report)
-print("Matriz de Confusão:\n", conf_matrix)
+    metrics = compute_metrics(np.array(y_cv_true), np.array(y_cv_pred))
+    metrics["params"] = params
+    return metrics
 
-# Plot ROC
-fpr, tpr, _ = roc_curve(y_val, y_prob)
-plt.figure(figsize=(8, 6))
-plt.plot(fpr, tpr, label=f'ROC Curve (area = {roc_auc:.2f})')
-plt.plot([0, 1], [0, 1], linestyle='--')
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('ROC Curve')
-plt.legend()
-plt.show()
+def compute_metrics(y_true, y_pred):
+    cm = confusion_matrix(y_true, y_pred)
+    return {
+        "Accuracy": accuracy_score(y_true, y_pred),
+        "Precision": precision_score(y_true, y_pred),
+        "Recall": recall_score(y_true, y_pred),
+        "F1-Score": f1_score(y_true, y_pred),
+        "MCC": matthews_corrcoef(y_true, y_pred),
+        "Kappa": cohen_kappa_score(y_true, y_pred),
+        "Mean Absolute Error": mean_absolute_error(y_true, y_pred),
+        "Root Mean Squared Error": np.sqrt(mean_squared_error(y_true, y_pred)),
+        "Confusion Matrix": cm.tolist()
+    }
 
-# Plot Confusion Matrix
-plt.figure(figsize=(8, 6))
-sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=encoder.classes_, yticklabels=encoder.classes_)
-plt.xlabel('Predicted')
-plt.ylabel('Actual')
-plt.title('Confusion Matrix')
-plt.show()
+param_grid = {
+    'var_smoothing': [1e-9, 1e-8, 1e-7, 1e-6]
+}
 
-# Save model and selector
-joblib.dump(grid.best_estimator_, 'best_model.pkl')
-joblib.dump(selector, 'feature_selector.pkl')
+skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=42)
+
+print("Starting parallel grid search for Naive Bayes...")
+
+results = Parallel(n_jobs=-1)(
+    delayed(process_nb)(params, X, y_binary, skf)
+    for params in ParameterGrid(param_grid)
+)
+
+# Save only the best result based on Recall
+best_result = max(results, key=lambda x: x["Recall"])
+
+with open('best_nb_metrics.json', 'w') as f:
+    json.dump(best_result, f, indent=4)
+
+print("Best Naive Bayes metrics saved to best_nb_metrics.json")
