@@ -1,6 +1,6 @@
-### **SVM Model Performance Report**
+### **KNN-PCA Model Performance Report**
 
-This document outlines the methodology, metrics, and results obtained from training and evaluating a **SVM** model for the classification task using genomic data from the **GeneCancerPredictor** project.
+This document outlines the methodology, metrics, and results obtained from training and evaluating a **KNN-PCA** model for the classification task using genomic data from the **GeneCancerPredictor** project.
 
 ---
 
@@ -17,10 +17,11 @@ The dataset used in this study originates from the [CuMiDa: Curated Microarray D
 The **K-Means Clustering** algorithm was employed to classify the genomic data into two clusters. Since K-Means is an unsupervised learning algorithm, cluster labels were aligned with the true labels in the training set using majority voting to map clusters to class labels (`HCC` and `Normal`).
 
 ### **Key Parameters**
-- **C:** 0.1
-- **Gamma:** 0.01
-- **Kernel:** `RBF`
+- **Weights:** `uniform`
+- **Number of neighbors:** 3
+- **Metric:** `euclidean`
 - **Random state:** 42 (to ensure reproducibility)
+
 ---
 
 ## **Performance Metrics**
@@ -30,18 +31,18 @@ On the training dataset, the model achieved the following results:
 
 | Metric                   | Value     |
 |--------------------------|-----------|
-| **Accuracy**             | 0.5053    |
-| **Precision**            | 0.5053    |
-| **Recall**               | 1.0000    |
-| **F1-Score**             | 0.6713    |
-| **Matthews Correlation Coefficient (MCC)** | 0.0000    |
-| **Mean Absolute Error (MAE)** | 0.4947    |
-| **Root Mean Squared Error (RMSE)** | 0.7034    |
+| **Accuracy**             | 0.9614    |
+| **Precision**            | 0.9784    |
+| **Recall**               | 0.9444    |
+| **F1-Score**             | 0.9611    |
+| **Matthews Correlation Coefficient (MCC)** | 0.9234    |
+| **Mean Absolute Error (MAE)** | 0.0386    |
+| **Root Mean Squared Error (RMSE)** | 0.1965    |
 
 #### Confusion Matrix:
 ```
-[[  0 141]
- [  0 144]]
+[[138   3]
+ [  8 136]]
 ```
 
 ---
@@ -51,17 +52,17 @@ Using 10-fold Stratified Cross-Validation, the model performance was evaluated a
 
 | Metric                   | Value     |
 |--------------------------|-----------|
-| **Accuracy**             | 0.5070    |
-| **Precision**            | 0.5070    |
-| **Recall**               | 1.0007    |
-| **F1-Score**             | 0.6729    |
-| **Matthews Correlation Coefficient (MCC)** | 0.0000   |
-| **Cohen's Kappa**        | 0.0000   |
+| **Accuracy**             | 0.9552    |
+| **Precision**            | 0.9769    |
+| **Recall**               | 0.9337    |
+| **F1-Score**             | 0.9548    |
+| **Matthews Correlation Coefficient (MCC)** | 0.9113   |
+| **Cohen's Kappa**        | 0.9104   |
 
 #### Confusion Matrix:
 ```
-[[  0 176]
- [  0 181]]
+[[172   4]
+ [ 12 169]]
 ```
 
 ---
@@ -71,12 +72,12 @@ The detailed performance per class (Normal and HCC) from cross-validation is sho
 
 | Class       | Precision | Recall | F1-Score | Support |
 |-------------|-----------|--------|----------|---------|
-| **Normal**  | 0.00      | 0.00   | 0.00     | 176     |
-| **HCC**     | 0.51      | 1.00   | 0.67     | 181     |
+| **Normal**  | 0.93      | 0.98   | 0.96     | 176     |
+| **HCC**     | 0.98      | 0.93   | 0.95     | 181     |
 
-- **Accuracy:** 0.51  
-- **Macro Average:** Precision = 0.25, Recall = 0.50, F1-Score = 0.34  
-- **Weighted Average:** Precision = 0.26, Recall = 0.51, F1-Score = 0.34  
+- **Accuracy:** 0.96  
+- **Macro Average:** Precision = 0.96, Recall = 0.96, F1-Score = 0.96  
+- **Weighted Average:** Precision = 0.96, Recall = 0.96, F1-Score = 0.96  
 
 ---
 
