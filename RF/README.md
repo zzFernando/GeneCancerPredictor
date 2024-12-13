@@ -1,121 +1,122 @@
-# Análise de Dados e Classificação com Random Forest
+### **Random Forest Model Performance Report**
 
-Este projeto realiza a análise de dados genômicos relacionados ao câncer de fígado utilizando um pipeline de Machine Learning. O objetivo é treinar e otimizar um modelo de Random Forest para prever o tipo de amostra (câncer ou não) com base nas features fornecidas.
-
-## Estrutura do Projeto
-
-O projeto utiliza diversas técnicas e ferramentas de Machine Learning, incluindo pré-processamento, seleção de hiperparâmetros, avaliação de modelos e visualização de resultados.
+This document outlines the methodology, metrics, and results obtained from training and evaluating a **Random Forest Classifier** for the classification task using genomic data from the **GeneCancerPredictor** project.
 
 ---
 
-## Técnicas e Ferramentas Utilizadas
+## **1. Methodology**
 
-### **Linguagem de Programação**
-- **Python**: A linguagem principal utilizada para a análise e construção do pipeline de Machine Learning.
+### **Dataset Overview**
+- **Source:** [CuMiDa - Curated Microarray Database](https://sbcb.inf.ufrgs.br/cumida/), Institute of Informatics, Federal University of Rio Grande do Sul (UFRGS).
+- **Dataset Used:** GSE14520_U133A
+  - **Cancer Type:** Liver
+  - **Platform:** GPL571
+  - **Samples:** 357
+  - **Genes:** 22,278
+  - **Classes:** 2 (`HCC` and `Normal`).
 
-### **Manipulação de Dados**
-- **Pandas**: Para carregamento, limpeza e manipulação de dados.
-- **NumPy**: Suporte a cálculos matemáticos e operações de arrays.
+### **Data Processing**
+1. **Preprocessing:**
+   - Features were standardized using `StandardScaler` to ensure equal contribution of all features during model training.
+   - Target labels were binarized: `HCC = 1`, `Normal = 0`.
 
-### **Pré-processamento**
-- **StandardScaler (Sklearn)**: Para normalizar os dados, garantindo que todas as features tenham a mesma escala.
+2. **Train-Test Split:**
+   - 80% of the data was used for training, and 20% was used for testing.
 
-### **Modelagem**
-- **Random Forest Classifier (Sklearn)**: Modelo de aprendizado supervisionado baseado em árvores de decisão.
+3. **Model Selection:**
+   - Random Forest Classifier with the following parameters:
+     - `n_estimators=100`: Number of trees.
+     - `max_depth=10`: Maximum depth of trees to prevent overfitting.
+     - `min_samples_split=5`: Minimum samples required to split an internal node.
+     - `min_samples_leaf=2`: Minimum samples required at a leaf node.
+     - `max_features='sqrt'`: Features considered at each split.
+     - `class_weight='balanced'`: Handles class imbalance by adjusting weights inversely proportional to class frequencies.
 
-### **Divisão dos Dados**
-- **train_test_split (Sklearn)**: Divisão do dataset em conjunto de treino (80%) e teste (20%).
-
-### **Otimização de Hiperparâmetros**
-- **GridSearchCV (Sklearn)**: Busca dos melhores hiperparâmetros para o modelo por meio de validação cruzada.
-
-### **Métricas de Avaliação**
-- **accuracy_score (Sklearn)**: Acurácia do modelo.
-- **classification_report (Sklearn)**: Relatório detalhado com métricas como precisão, recall e F1-score.
-- **confusion_matrix (Sklearn)**: Matriz de confusão para avaliar previsões.
-
-### **Visualização**
-- **Matplotlib**: Para criação de gráficos e visualizações gerais.
-- **Seaborn**: Para gráficos detalhados, como as importâncias das features.
-- **ConfusionMatrixDisplay (Sklearn)**: Visualização da matriz de confusão.
-- **learning_curve (Sklearn)**: Gráficos da curva de aprendizado.
-- **validation_curve (Sklearn)**: Gráficos para avaliar o impacto de diferentes valores de hiperparâmetros.
-
-### **Salvamento do Modelo**
-- **Joblib**: Para salvar e carregar o modelo treinado.
-
-### **Dados**
-- **Dataset**: Os dados são genômicos e foram obtidos do [Banco de Dados CUMIDA](https://sbcb.inf.ufrgs.br/data/cumida/). O arquivo utilizado neste projeto é `Liver_GSE14520_U133A.csv`.
+4. **Validation Methodology:**
+   - **Stratified 10-Fold Cross-Validation**: Ensures class proportions are maintained across folds to evaluate generalization performance.
 
 ---
 
-## Estrutura do Código
+## **2. Metrics Explained**
 
-1. **Baixando o Dataset**  
-   Verifica se o dataset está presente na máquina local. Caso contrário, faz o download do arquivo.
-
-2. **Pré-processamento**  
-   - Carrega o dataset e realiza a separação entre features (`X`) e rótulos (`y`).
-   - Divide os dados em conjuntos de treino e teste.
-
-3. **Pipeline de Machine Learning**  
-   - Cria um pipeline para normalizar os dados e treinar o modelo de Random Forest.
-
-4. **Otimização de Hiperparâmetros**  
-   - Utiliza o `GridSearchCV` para encontrar os melhores parâmetros para o modelo.
-
-5. **Avaliação do Modelo**  
-   - Calcula métricas de desempenho no conjunto de teste.
-   - Gera relatórios e gráficos, incluindo:
-     - Matriz de confusão.
-     - Importância das features.
-     - Curva de aprendizado.
-     - Curva de validação.
-
-6. **Salvamento do Modelo**  
-   - O melhor modelo ajustado é salvo no arquivo `best_random_forest_model.pkl`.
+### **Model Metrics**
+1. **Accuracy:** Proportion of correctly classified samples over the total.
+2. **Precision:** Proportion of true positive predictions out of all positive predictions.
+3. **Recall (Sensitivity):** Proportion of actual positive samples correctly identified.
+4. **F1-Score:** Harmonic mean of Precision and Recall.
+5. **MCC (Matthews Correlation Coefficient):** Evaluates the quality of binary classifications, ranging from -1 (complete disagreement) to +1 (perfect classification).
+6. **Kappa Statistic:** Measures agreement beyond chance. Values closer to 1 indicate better agreement.
+7. **ROC AUC (Receiver Operating Characteristic - Area Under Curve):** Measures the ability of the model to distinguish between classes. A value close to 1.0 indicates excellent performance.
+8. **Mean Absolute Error (MAE):** Average absolute difference between predicted and actual values.
+9. **Root Mean Squared Error (RMSE):** Square root of the average squared difference between predicted and actual values.
 
 ---
 
-## Resultados e Visualizações
+## **3. Results**
 
-O código produz as seguintes visualizações e relatórios:
+### **Training Set Performance**
+- **Accuracy:** 0.9930
+- **Precision:** 0.9863
+- **Recall:** 1.0000
+- **F1-Score:** 0.9931
+- **MCC:** 0.9861
+- **Mean Absolute Error:** 0.0070
+- **Root Mean Squared Error:** 0.0838
 
-1. **Matriz de Confusão**  
-   Exibe o desempenho do modelo na classificação das amostras.
-
-2. **Importância das Features**  
-   Lista e plota as 10 features mais importantes.
-
-3. **Curva de Aprendizado**  
-   Mostra como a acurácia varia com o tamanho do conjunto de treinamento.
-
-4. **Curva de Validação**  
-   Avalia o impacto de diferentes valores para o hiperparâmetro `n_estimators`.
-
----
-
-## Como Executar
-
-1. **Requisitos**  
-   Instale as dependências necessárias com o seguinte comando:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Executar o Script**  
-   Salve o código em um arquivo `.py` e execute com:
-   ```bash
-   python train.py
-   ```
-
-3. **Resultados**  
-   - O melhor modelo será salvo como `best_random_forest_model.pkl`.
-   - As visualizações serão exibidas diretamente.
+#### **Confusion Matrix (Training Set):**
+| Predicted/Classified as | HCC (1) | Normal (0) |
+|--------------------------|---------|------------|
+| **HCC (1)**              | 144     | 0          |
+| **Normal (0)**           | 2       | 139        |
 
 ---
 
-## Referências
+### **Stratified 10-Fold Cross-Validation**
+- **Accuracy:** 0.9636
+- **Precision:** 0.9719
+- **Recall:** 0.9558
+- **F1-Score:** 0.9638
+- **MCC:** 0.9273
+- **Kappa Statistic:** 0.9272
+- **ROC AUC:** 0.9637
 
-- [Documentação do Scikit-learn](https://scikit-learn.org/)
-- [Dataset CUMIDA](https://sbcb.inf.ufrgs.br/data/cumida/)
+#### **Confusion Matrix (Cross-Validation):**
+| Predicted/Classified as | HCC (1) | Normal (0) |
+|--------------------------|---------|------------|
+| **HCC (1)**              | 173     | 8          |
+| **Normal (0)**           | 5       | 170        |
+
+---
+
+### **Class-Specific Performance (Cross-Validation)**
+| Metric       | Normal (0) | HCC (1) |
+|--------------|------------|---------|
+| **Precision**| 0.96       | 0.97    |
+| **Recall**   | 0.97       | 0.96    |
+| **F1-Score** | 0.96       | 0.96    |
+| **ROC AUC**  | 0.96       | 0.96    |
+
+---
+
+## **4. Observations**
+
+1. **Training vs. Validation:**
+   - The model performed exceptionally well on the training set, achieving near-perfect scores across all metrics.
+   - Slight drops in performance during cross-validation indicate some degree of overfitting.
+
+2. **Class-Specific Insights:**
+   - Precision and Recall are well-balanced across both classes (HCC and Normal), suggesting the model handles class imbalance effectively.
+
+3. **Differences in Sample Count:**
+   - The **training confusion matrix** includes all 357 samples since it evaluates the model on the entire dataset.
+   - The **validation confusion matrix** reflects predictions from 10-fold cross-validation, where each sample is evaluated in one of the folds.
+
+4. **Model Robustness:**
+   - High MCC (0.9273) and Kappa Statistic (0.9272) during cross-validation highlight the robustness of the model.
+
+---
+
+## **5. Conclusion**
+- The **Random Forest Classifier** demonstrates high accuracy and robustness in classifying genomic data, achieving a Recall of 0.9558 during cross-validation.
+- Despite slight overfitting in the training set, the model generalizes well, as evidenced by its cross-validation metrics.
+- Future work may include feature selection and hyperparameter tuning to further reduce overfitting and enhance computational efficiency.
