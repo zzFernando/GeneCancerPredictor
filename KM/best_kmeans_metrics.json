@@ -1,0 +1,25 @@
+{
+    "Accuracy": 0.9047619047619048,
+    "Precision": 0.9565217391304348,
+    "Recall": 0.850828729281768,
+    "F1-Score": 0.9005847953216374,
+    "MCC": 0.8149021998106847,
+    "Kappa": 0.8097849934181659,
+    "Mean Absolute Error": 0.09523809523809523,
+    "Root Mean Squared Error": 0.3086066999241838,
+    "Confusion Matrix": [
+        [
+            169,
+            7
+        ],
+        [
+            27,
+            154
+        ]
+    ],
+    "params": {
+        "init": "k-means++",
+        "max_iter": 300,
+        "n_init": 10
+    }
+}
