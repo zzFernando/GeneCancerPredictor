@@ -1,0 +1,28 @@
+{
+    "Accuracy": 0.9635854341736695,
+    "Precision": 0.9666666666666667,
+    "Recall": 0.9613259668508287,
+    "F1-Score": 0.96398891966759,
+    "MCC": 0.9271768490867865,
+    "Kappa": 0.9271622957766373,
+    "Mean Absolute Error": 0.036414565826330535,
+    "Root Mean Squared Error": 0.19082600930253332,
+    "Confusion Matrix": [
+        [
+            170,
+            6
+        ],
+        [
+            7,
+            174
+        ]
+    ],
+    "params": {
+        "class_weight": "balanced",
+        "max_depth": 10,
+        "max_features": "log2",
+        "min_samples_leaf": 1,
+        "min_samples_split": 2,
+        "n_estimators": 100
+    }
+}

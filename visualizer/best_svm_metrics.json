@@ -1,0 +1,24 @@
+{
+    "Accuracy": 0.5070028011204482,
+    "Precision": 0.5070028011204482,
+    "Recall": 1.0,
+    "F1-Score": 0.6728624535315985,
+    "MCC": 0.0,
+    "Kappa": 0.0,
+    "Mean Absolute Error": 0.49299719887955185,
+    "Root Mean Squared Error": 0.702137592555442,
+    "Confusion Matrix": [
+        [
+            0,
+            176
+        ],
+        [
+            0,
+            181
+        ]
+    ],
+    "params": {
+        "C": 0.1,
+        "gamma": 0.01
+    }
+}

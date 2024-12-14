@@ -1,0 +1,26 @@
+{
+    "Accuracy": 0.9551820728291317,
+    "Precision": 0.976878612716763,
+    "Recall": 0.9337016574585635,
+    "F1-Score": 0.9548022598870056,
+    "MCC": 0.9113177383654683,
+    "Kappa": 0.9104028108922073,
+    "Mean Absolute Error": 0.04481792717086835,
+    "Root Mean Squared Error": 0.21170244960998527,
+    "Confusion Matrix": [
+        [
+            172,
+            4
+        ],
+        [
+            12,
+            169
+        ]
+    ],
+    "params": {
+        "metric": "euclidean",
+        "n_components": 5,
+        "n_neighbors": 3,
+        "weights": "uniform"
+    }
+}
