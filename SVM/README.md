@@ -1,100 +1,80 @@
-### **SVM Model Performance Report**
+# Support Vector Machine (SVM) Classifier
 
-This document outlines the methodology, metrics, and results obtained from training and evaluating a **SVM** model for the classification task using genomic data from the **GeneCancerPredictor** project.
+## Overview
+This project applies a **Support Vector Machine (SVM)** classifier to predict liver cancer (Hepatocellular Carcinoma - HCC) using genomic data. The genomic dataset is sourced from the CuMiDa database and preprocessed for efficient machine learning workflows. The SVM model was optimized using grid search and evaluated using 10-fold cross-validation.
 
----
+### Dataset
+- **Source**: [CuMiDa Database](https://sbcb.inf.ufrgs.br/cumida)
+- **Dataset ID**: GSE14520_U133A
+- **Samples**: 357
+- **Genes**: 22,278
+- **Classes**: Binary (HCC vs. Normal)
 
-## **Dataset Description**
-The dataset used in this study originates from the [CuMiDa: Curated Microarray Database](https://sbcb.inf.ufrgs.br/data/cumida/Genes/Liver/). It is a carefully curated resource containing genomic data for cancer research, optimized for machine learning applications. Specifically, the dataset `Liver_GSE14520_U133A` was used, featuring:
+The dataset was standardized using `StandardScaler` to normalize the gene expression values.
 
-- **Genes:** 22,278
-- **Samples:** 357
-- **Classes:** 2 (HCC and Normal)
+## Methodology
+### Algorithm Setup
+The SVM classifier was implemented with the following steps:
+1. **StandardScaler**: Standardized the data to eliminate scale bias.
+2. **SVM**: Applied the Support Vector Classifier with a radial basis function (RBF) kernel.
 
----
+### Grid Search Parameters
+The model was optimized with the following hyperparameters:
+- **C**: [0.1, 1, 10] (Regularization parameter)
+- **Gamma**: [0.01, 0.1, 1] (Kernel coefficient for RBF)
 
-## **Model Description**
-The **K-Means Clustering** algorithm was employed to classify the genomic data into two clusters. Since K-Means is an unsupervised learning algorithm, cluster labels were aligned with the true labels in the training set using majority voting to map clusters to class labels (`HCC` and `Normal`).
+### Evaluation Metrics
+The model's performance was evaluated using:
+- **Accuracy**
+- **Precision**
+- **Recall** (primary metric for optimization)
+- **F1-Score**
+- **Matthews Correlation Coefficient (MCC)**
+- **Cohen's Kappa**
+- **Mean Absolute Error (MAE)**
+- **Root Mean Squared Error (RMSE)**
+- **Confusion Matrix**
 
-### **Key Parameters**
-- **C:** 0.1
-- **Gamma:** 0.01
-- **Kernel:** `RBF`
-- **Random state:** 42 (to ensure reproducibility)
----
+## Results
+Best performance (based on Recall):
+- **Accuracy**: 0.507
+- **Precision**: 0.507
+- **Recall**: 1.0
+- **F1-Score**: 0.673
+- **MCC**: 0.0
+- **Kappa**: 0.0
 
-## **Performance Metrics**
-
-### **1. Training on the Complete Dataset**
-On the training dataset, the model achieved the following results:
-
-| Metric                   | Value     |
-|--------------------------|-----------|
-| **Accuracy**             | 0.5053    |
-| **Precision**            | 0.5053    |
-| **Recall**               | 1.0000    |
-| **F1-Score**             | 0.6713    |
-| **Matthews Correlation Coefficient (MCC)** | 0.0000    |
-| **Mean Absolute Error (MAE)** | 0.4947    |
-| **Root Mean Squared Error (RMSE)** | 0.7034    |
-
-#### Confusion Matrix:
+### Confusion Matrix
 ```
-[[  0 141]
- [  0 144]]
-```
-
----
-
-### **2. Stratified Cross-Validation**
-Using 10-fold Stratified Cross-Validation, the model performance was evaluated across all samples:
-
-| Metric                   | Value     |
-|--------------------------|-----------|
-| **Accuracy**             | 0.5070    |
-| **Precision**            | 0.5070    |
-| **Recall**               | 1.0007    |
-| **F1-Score**             | 0.6729    |
-| **Matthews Correlation Coefficient (MCC)** | 0.0000   |
-| **Cohen's Kappa**        | 0.0000   |
-
-#### Confusion Matrix:
-```
-[[  0 176]
- [  0 181]]
+[[  0, 176],
+ [  0, 181]]
 ```
 
----
+### Best Parameters
+- **C**: 0.1
+- **Gamma**: 0.01
 
-### **3. Class-Specific Performance**
-The detailed performance per class (Normal and HCC) from cross-validation is shown below:
+## Running the Model
+### Installation
+Clone the repository and install the dependencies:
+```bash
+git clone https://github.com/zzFernando/GeneCancerPredictor.git
+cd GeneCancerPredictor/SVM
+pip install -r requirements.txt
+```
 
-| Class       | Precision | Recall | F1-Score | Support |
-|-------------|-----------|--------|----------|---------|
-| **Normal**  | 0.00      | 0.00   | 0.00     | 176     |
-| **HCC**     | 0.51      | 1.00   | 0.67     | 181     |
+### Training and Evaluation
+Run the training script:
+```bash
+python train.py
+```
+The script performs grid search with 10-fold cross-validation and saves the best metrics to `best_svm_metrics.json`.
 
-- **Accuracy:** 0.51  
-- **Macro Average:** Precision = 0.25, Recall = 0.50, F1-Score = 0.34  
-- **Weighted Average:** Precision = 0.26, Recall = 0.51, F1-Score = 0.34  
-
----
-
-## **Observations**
-1. **Training Results:** The K-Means model performed relatively well on the training dataset, achieving high precision and recall values.
-2. **Cross-Validation:** The performance on the cross-validation set was significantly lower, indicating potential issues with generalization due to the unsupervised nature of K-Means.
-3. **Clustering Challenges:** The high-dimensional nature of genomic data and the absence of supervision during clustering likely contributed to the observed performance gaps.
-4. **Class Imbalance Impact:** Despite balanced classes in the dataset, K-Means does not inherently account for label balance, impacting precision and recall for certain folds.
-
----
-
-## **Future Improvements**
-1. **Feature Selection:** Reducing the dimensionality of the dataset using PCA or selecting highly relevant genes could improve clustering performance.
-2. **Alternative Models:** Exploring semi-supervised or supervised clustering techniques (e.g., Gaussian Mixture Models or DBSCAN with label propagation).
-3. **Hyperparameter Tuning:** Further tuning initialization strategies, distance metrics, and cluster mapping processes.
-4. **Dimensionality Reduction:** Employing t-SNE or UMAP for feature transformation to aid clustering in high-dimensional spaces.
+## Possible Improvements
+1. **Feature Engineering**: Enhance the dataset by identifying and including more relevant features.
+2. **Kernel Exploration**: Experiment with other kernels such as polynomial or sigmoid.
+3. **Class Imbalance Handling**: Use oversampling or synthetic data generation methods to address class imbalance.
+4. **Hyperparameter Optimization**: Leverage advanced techniques like Bayesian optimization or genetic algorithms for more efficient tuning.
 
 ---
-
-## **Conclusion**
-The K-Means clustering model provided moderate results, especially on the training dataset, but exhibited limitations during cross-validation. Future work will focus on enhancing feature engineering and exploring supervised models to address these challenges.
+For more information, refer to the main repository: [GeneCancerPredictor](https://github.com/zzFernando/GeneCancerPredictor)

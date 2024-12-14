@@ -1,78 +1,78 @@
-# Naive Bayes for Liver Cancer Classification
+# Naive Bayes Classifier
 
 ## Overview
+This project applies a **Naive Bayes Classifier** to predict liver cancer (Hepatocellular Carcinoma - HCC) using genomic data. The genomic dataset is sourced from the CuMiDa database and preprocessed for efficient machine learning workflows. The Naive Bayes model was optimized using grid search and evaluated using 10-fold cross-validation.
 
-This document details the methods and rationale behind using a **Naive Bayes** classifier to distinguish between liver cancer (`HCC`) and normal tissue samples. The focus of this model is simplicity and interpretability, leveraging probabilistic principles to handle gene expression data.
+### Dataset
+- **Source**: [CuMiDa Database](https://sbcb.inf.ufrgs.br/cumida)
+- **Dataset ID**: GSE14520_U133A
+- **Samples**: 357
+- **Genes**: 22,278
+- **Classes**: Binary (HCC vs. Normal)
 
----
+The dataset was standardized using `StandardScaler` to normalize the gene expression values.
 
 ## Methodology
+### Algorithm Setup
+The Naive Bayes classifier was implemented using the following pipeline:
+1. **StandardScaler**: Standardized the data to eliminate scale bias.
+2. **Gaussian Naive Bayes**: Applied the GaussianNB classifier.
 
-### 1. **Model Selection: Naive Bayes**
+### Grid Search Parameters
+The model was optimized with the following hyperparameters:
+- **Var Smoothing**: [1e-9, 1e-8, 1e-7, 1e-6]
 
-#### Why Naive Bayes?
-- **Simplicity**: A probabilistic approach that is computationally efficient, making it suitable for large datasets like gene expression profiles.
-- **Assumption**: Assumes feature independence, which may not strictly hold but can still provide robust results in high-dimensional biological data.
-- **Probabilistic Insights**: Outputs class probabilities, which are interpretable and valuable for clinical decision-making.
-
-#### Limitations:
-- Naive Bayes struggles when features are highly correlated, as the independence assumption is violated. However, in this application, its speed and simplicity outweigh this limitation for exploratory purposes.
-
----
-
-### 2. **Feature Selection**
-
-#### Why Feature Selection?
-- **High Dimensionality**: Gene expression datasets often have tens of thousands of features, which can lead to overfitting and computational inefficiency.
-- **Improved Performance**: Selecting the most important features focuses the model on relevant data, enhancing both accuracy and interpretability.
-
-#### Method Used:
-- **Random Forest Feature Importance**:
-  - A `RandomForestClassifier` was used to rank features based on their importance.
-  - Features above the mean importance threshold were retained, significantly reducing dimensionality while preserving critical information.
-
----
-
-### 3. **Preprocessing**
-
-- **Scaling**: Features were standardized using `StandardScaler` to zero mean and unit variance. This ensures numerical stability and improves the performance of Naive Bayes.
-- **Label Encoding**: The target variable (`HCC` or `normal`) was encoded as binary values (`1` for `HCC`, `0` for `normal`).
-
----
-
-### 4. **Hyperparameter Tuning**
-
-#### Why Tune?
-To optimize the performance of the Naive Bayes classifier by adjusting the `var_smoothing` parameter, which controls numerical stability during likelihood estimation.
-
-#### Tuning Method:
-- Grid Search over `var_smoothing` values: `[1e-9, 1e-8, 1e-7]`.
-- Evaluated using stratified cross-validation with repeated splits for robust performance estimation.
-
----
-
-### 5. **Evaluation**
-
-#### Metrics Used:
-1. **Accuracy**: To assess the overall correctness of the model.
-2. **ROC AUC**: To evaluate the model's ability to distinguish between the two classes.
-3. **Confusion Matrix**: Provides detailed insights into false positives and false negatives, crucial for understanding errors in a clinical context.
-4. **Classification Report**: Summarizes precision, recall, and F1-score for each class.
-
-#### Why These Metrics?
-- In medical applications, sensitivity (recall for `HCC`) and specificity are critical to minimize misdiagnosis risks.
-- The ROC AUC metric captures the trade-off between true positive rate and false positive rate, which is particularly important for imbalanced datasets.
-
----
+### Evaluation Metrics
+The model's performance was evaluated using:
+- **Accuracy**
+- **Precision**
+- **Recall** (primary metric for optimization)
+- **F1-Score**
+- **Matthews Correlation Coefficient (MCC)**
+- **Cohen's Kappa**
+- **Mean Absolute Error (MAE)**
+- **Root Mean Squared Error (RMSE)**
+- **Confusion Matrix**
 
 ## Results
+Best performance (based on Recall):
+- **Accuracy**: 0.952
+- **Precision**: 0.951
+- **Recall**: 0.956
+- **F1-Score**: 0.953
+- **MCC**: 0.905
+- **Kappa**: 0.905
 
-- **Feature Dimensionality**: Reduced from tens of thousands to ~600 features after selection.
-- **ROC AUC**: Demonstrates the model's discriminatory power.
-- **Confusion Matrix**: Highlights the balance between true and false classifications, with a focus on minimizing false negatives for `HCC`.
+### Confusion Matrix
+```
+[[167, 9],
+ [  8, 173]]
+```
+
+### Best Parameters
+- **Var Smoothing**: 1e-9
+
+## Running the Model
+### Installation
+Clone the repository and install the dependencies:
+```bash
+git clone https://github.com/zzFernando/GeneCancerPredictor.git
+cd GeneCancerPredictor/NB
+pip install -r requirements.txt
+```
+
+### Training and Evaluation
+Run the training script:
+```bash
+python train.py
+```
+The script performs grid search with 10-fold cross-validation and saves the best metrics to `best_nb_metrics.json`.
+
+## Possible Improvements
+1. **Feature Selection**: Explore advanced feature selection techniques to enhance model interpretability.
+2. **Kernel Density Estimation**: Extend Naive Bayes with kernel density estimation for better handling of non-Gaussian data.
+3. **Data Augmentation**: Generate synthetic data to address class imbalances and improve generalization.
+4. **Hybrid Models**: Combine Naive Bayes with other classifiers for ensemble methods.
 
 ---
-
-## Conclusion
-
-The Naive Bayes model, despite its simplicity, provides a robust baseline for liver cancer classification. By combining probabilistic predictions with effective feature selection and preprocessing, this approach achieves interpretable results suitable for exploratory analysis and rapid prototyping.
+For more information, refer to the main repository: [GeneCancerPredictor](https://github.com/zzFernando/GeneCancerPredictor)
