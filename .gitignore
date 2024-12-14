@@ -165,5 +165,9 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 Liver_GSE14520_U133A.csv
-KNN/Liver_GSE14520_U133A.csv
+FNN/Liver_GSE14520_U133A.csv
 KM/Liver_GSE14520_U133A.csv
+KNN/Liver_GSE14520_U133A.csv
+NB/Liver_GSE14520_U133A.csv
+RF/Liver_GSE14520_U133A.csv
+SVM/Liver_GSE14520_U133A.csv
