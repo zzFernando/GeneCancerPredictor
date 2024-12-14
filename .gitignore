@@ -1,5 +1,6 @@
 #Datasets and models
 *.pkl
+*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

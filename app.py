@@ -5,7 +5,23 @@ import seaborn as sns
 import os
 import numpy as np
 import pandas as pd
+import urllib.request
 from sklearn.decomposition import PCA
+
+# Define dataset URL e nome do arquivo
+DATASET_URL = "https://sbcb.inf.ufrgs.br/data/cumida/Genes/Liver/GSE14520_U133A/Liver_GSE14520_U133A.csv"
+DATASET_FILE = "Liver_GSE14520_U133A.csv"
+
+# Função para verificar e baixar o dataset
+def check_and_download_dataset():
+    if not os.path.exists(DATASET_FILE):
+        st.warning("Dataset não encontrado. Iniciando o download...")
+        try:
+            urllib.request.urlretrieve(DATASET_URL, DATASET_FILE)
+            st.success("Dataset baixado com sucesso!")
+        except Exception as e:
+            st.error(f"Erro ao baixar o dataset: {e}")
+            raise
 
 # Load JSON metrics
 def load_metrics(file_path):
@@ -134,6 +150,9 @@ def plot_pca_pairplot():
 
 # Main Streamlit app
 st.title("Model Comparison and Visualizations")
+
+# Check and download dataset if necessary
+check_and_download_dataset()
 
 # Load metrics
 st.sidebar.title("Select an Option")
