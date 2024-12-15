@@ -117,7 +117,6 @@ def plot_model_comparison_area(metrics):
     plt.tight_layout()
     return fig
 
-
 # Gene expression distribution using PCA
 def plot_pca_distribution():
     data = pd.read_csv("Liver_GSE14520_U133A.csv")
@@ -142,18 +141,6 @@ def plot_samples_per_class():
     ax.set_ylabel("Count")
     return fig
 
-# Visualize variance explained by PCA components
-def plot_pca_variance():
-    data = pd.read_csv("Liver_GSE14520_U133A.csv")
-    pca = PCA()
-    pca.fit(data.iloc[:, 2:])
-    explained_variance = pca.explained_variance_ratio_
-    fig, ax = plt.subplots(figsize=(8, 6))
-    ax.bar(range(1, len(explained_variance) + 1), explained_variance, color="skyblue")
-    ax.set_title("Explained Variance by Principal Components")
-    ax.set_xlabel("Principal Component")
-    ax.set_ylabel("Explained Variance Ratio")
-    return fig
 # Distribution of top genes by variance
 def plot_top_genes_variance():
     data = pd.read_csv("Liver_GSE14520_U133A.csv")
@@ -165,15 +152,14 @@ def plot_top_genes_variance():
     ax.set_ylabel("Gene Index")
     return fig
 
-# Pairplot for PCA components
-def plot_pca_pairplot():
+# Pairplot for top 10 genes by variance
+def plot_top_genes_pairplot():
     data = pd.read_csv("Liver_GSE14520_U133A.csv")
-    pca = PCA(n_components=4)
-    reduced_data = pca.fit_transform(data.iloc[:, 2:])
-    pca_df = pd.DataFrame(reduced_data, columns=[f"PC{i+1}" for i in range(4)])
-    pca_df['type'] = pd.factorize(data['type'])[0]
-    fig = sns.pairplot(pca_df, hue="type", palette="coolwarm", diag_kind="kde")
-    fig.fig.suptitle("Pairplot of PCA Components", y=1.02)
+    top_genes = data.iloc[:, 2:].var().sort_values(ascending=False).head(5).index
+    pairplot_data = data[top_genes]
+    pairplot_data['type'] = data['type']
+    fig = sns.pairplot(pairplot_data, hue="type", palette="coolwarm", diag_kind="kde")
+    fig.fig.suptitle("Pairplot of Top 5 Genes by Variance", y=1.02)
     return fig
 
 # Main Streamlit app
@@ -238,7 +224,6 @@ if option == "Model Comparison":
     else:
         st.warning("No model metrics files found!")
 
-
 elif option == "Dataset Visualizations":
     st.header("Dataset Visualizations")
 
@@ -254,20 +239,14 @@ elif option == "Dataset Visualizations":
     st.pyplot(fig_samples_class)
     st.caption("This bar chart represents the number of samples in each class (HCC vs. Normal).")
 
-    # PCA variance
-    st.subheader("Explained Variance by Principal Components")
-    fig_pca_variance = plot_pca_variance()
-    st.pyplot(fig_pca_variance)
-    st.caption("This bar chart shows the proportion of variance explained by each principal component.")
-
     # Top genes by variance
     st.subheader("Top 10 Genes with Highest Variance")
     fig_top_genes_variance = plot_top_genes_variance()
     st.pyplot(fig_top_genes_variance)
     st.caption("This bar chart shows the top 10 genes with the highest variance in their expression levels.")
 
-    # PCA pairplot
-    st.subheader("Pairplot of PCA Components")
-    fig_pca_pairplot = plot_pca_pairplot()
-    st.pyplot(fig_pca_pairplot.fig)
-    st.caption("This pairplot shows relationships between the first four PCA components, colored by class.")
+    # Pairplot of top 5 genes
+    st.subheader("Pairplot of Top 5 Genes by Variance")
+    fig_top_genes_pairplot = plot_top_genes_pairplot()
+    st.pyplot(fig_top_genes_pairplot.fig)
+    st.caption("This pairplot shows relationships between the top 10 genes with the highest variance, colored by class.")
