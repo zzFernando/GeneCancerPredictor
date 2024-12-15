@@ -54,41 +54,69 @@ def plot_confusion_matrix(conf_matrix, model_name):
     ax.set_ylabel("Actual")
     return fig
 
-# Plot performance comparison with line chart per area
-def plot_model_comparison_line(metrics):
+def plot_recall_line(metrics):
+    # Converte os dados em um DataFrame e filtra apenas o Recall
     df_metrics = pd.DataFrame(metrics).set_index("Model")
+    recall_values = df_metrics["Recall"]
+
+    # Define os limites do eixo Y com base no Recall (para evitar muito espaço em branco)
+    y_min = recall_values.min() - 0.01  # Margem inferior
+    y_max = recall_values.max() + 0.01  # Margem superior
+
+    # Criação do gráfico
     fig, ax = plt.subplots(figsize=(10, 6))
-    for metric in ["Accuracy", "Precision", "Recall", "F1-Score"]:
-        ax.plot(df_metrics.index, df_metrics[metric], marker="o", label=metric)
-        ax.fill_between(df_metrics.index, df_metrics[metric], alpha=0.1)
-    ax.set_title("Model Performance Comparison")
-    ax.set_xlabel("Model")
-    ax.set_ylabel("Metric Value")
-    ax.set_ylim(0.5, 1)
-    ax.legend(title="Metrics")
+    ax.plot(recall_values.index, recall_values, marker="o", linestyle="-", color="#FF5733", linewidth=2, label="Recall")
+
+    # Configurações do gráfico
+    ax.set_title("Recall Comparison Across Models", fontsize=15)
+    ax.set_xlabel("Model", fontsize=12)
+    ax.set_ylabel("Recall Value", fontsize=12)
+    ax.set_ylim(y_min, y_max)  # Ajusta o range do eixo Y dinamicamente
+    ax.grid(True, linestyle="--", alpha=0.5)  # Adiciona grid para facilitar leitura
+    ax.legend(loc="lower right")
+
+    # Rótulos rotacionados para o eixo X
     plt.xticks(rotation=45)
+    plt.tight_layout()
+
     return fig
 
-# Additional comparison charts
+# Plot performance comparison with bar chart
 def plot_model_comparison_bar(metrics):
     df_metrics = pd.DataFrame(metrics).set_index("Model")
+    y_min, y_max = df_metrics.min().min(), df_metrics.max().max()  # Define os limites com base nas métricas
     fig, ax = plt.subplots(figsize=(10, 6))
     df_metrics.plot(kind="bar", ax=ax)
     ax.set_title("Model Performance Bar Chart")
     ax.set_xlabel("Model")
     ax.set_ylabel("Metric Value")
+    ax.set_ylim(y_min - 0.05, y_max + 0.05)  # Adiciona margem ao redor do range
     plt.xticks(rotation=45)
     return fig
 
 def plot_model_comparison_area(metrics):
     df_metrics = pd.DataFrame(metrics).set_index("Model")
+    
     fig, ax = plt.subplots(figsize=(10, 6))
-    df_metrics.plot(kind="area", alpha=0.4, ax=ax)
+    
+    # Loop para plotar cada métrica com área separada
+    for metric in df_metrics.columns:
+        ax.fill_between(df_metrics.index, df_metrics[metric], label=metric, alpha=0.5)
+        ax.plot(df_metrics.index, df_metrics[metric], marker="o", linestyle="-", label=f"{metric} (Line)")
+    
     ax.set_title("Model Performance Area Chart")
     ax.set_xlabel("Model")
     ax.set_ylabel("Metric Value")
+    
+    # Ajuste dinâmico do limite do eixo y
+    y_min, y_max = df_metrics.min().min(), df_metrics.max().max()
+    ax.set_ylim(y_min - 0.05, y_max + 0.05)
+    
     plt.xticks(rotation=45)
+    plt.legend(title="Metrics", loc="upper left", bbox_to_anchor=(1, 1))  # Colocar a legenda fora do gráfico
+    plt.tight_layout()
     return fig
+
 
 # Gene expression distribution using PCA
 def plot_pca_distribution():
@@ -163,8 +191,7 @@ option = st.sidebar.selectbox("Choose a task", ["Model Comparison", "Dataset Vis
 
 if option == "Model Comparison":
     st.header("Model Performance Comparison")
-    if metrics:
-        # Display metrics in a table
+    if metrics: 
         results = []
         for model, data in metrics.items():
             results.append({
@@ -176,14 +203,18 @@ if option == "Model Comparison":
                 "MCC": data["MCC"]
             })
         df_metrics = pd.DataFrame(results)
+
+        # Ordena a tabela pela métrica "Recall" em ordem decrescente
+        df_metrics = df_metrics.sort_values(by="Recall", ascending=False)
+
         st.table(df_metrics)
 
-        # Add comparison charts
+        # Add comparison charts in columns
         st.subheader("Model Performance Charts")
         col1, col2, col3 = st.columns(3)
         with col1:
             st.subheader("Line Chart")
-            fig_line = plot_model_comparison_line(results)
+            fig_line = plot_recall_line(results)
             st.pyplot(fig_line)
         with col2:
             st.subheader("Bar Chart")
@@ -194,7 +225,8 @@ if option == "Model Comparison":
             fig_area = plot_model_comparison_area(results)
             st.pyplot(fig_area)
 
-        # Select model for detailed analysis
+        # Select model for detailed analysis (separate from columns)
+        st.subheader("Detailed Model Analysis")
         selected_model = st.selectbox("Select a model for detailed analysis", metrics.keys())
         if selected_model:
             model_data = metrics[selected_model]
@@ -205,6 +237,7 @@ if option == "Model Comparison":
             st.pyplot(fig)
     else:
         st.warning("No model metrics files found!")
+
 
 elif option == "Dataset Visualizations":
     st.header("Dataset Visualizations")
