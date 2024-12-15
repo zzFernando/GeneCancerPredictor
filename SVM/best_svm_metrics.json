@@ -1,24 +1,26 @@
 {
-    "Accuracy": 0.5070028011204482,
-    "Precision": 0.5070028011204482,
-    "Recall": 1.0,
-    "F1-Score": 0.6728624535315985,
-    "MCC": 0.0,
-    "Kappa": 0.0,
-    "Mean Absolute Error": 0.49299719887955185,
-    "Root Mean Squared Error": 0.702137592555442,
+    "Accuracy": 0.9502762430939227,
+    "Precision": 0.9405405405405406,
+    "Recall": 0.9613259668508287,
+    "F1-Score": 0.9508196721311475,
+    "MCC": 0.9007724751950507,
+    "Kappa": 0.9005524861878453,
+    "Mean Absolute Error": 0.049723756906077346,
+    "Root Mean Squared Error": 0.2229882438741499,
     "Confusion Matrix": [
         [
-            0,
-            176
+            170,
+            11
         ],
         [
-            0,
-            181
+            7,
+            174
         ]
     ],
     "params": {
-        "C": 0.1,
-        "gamma": 0.01
+        "kernel": "rbf",
+        "gamma": "scale",
+        "class_weight": "balanced",
+        "C": 0.1
     }
 }
