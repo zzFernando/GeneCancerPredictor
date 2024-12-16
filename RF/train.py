@@ -13,7 +13,6 @@ from sklearn.metrics import (
 )
 from joblib import Parallel, delayed
 
-# Dataset configuration
 dataset_url = "https://sbcb.inf.ufrgs.br/data/cumida/Genes/Liver/GSE14520_U133A/Liver_GSE14520_U133A.csv"
 file_path = 'Liver_GSE14520_U133A.csv'
 if not os.path.exists(file_path):
@@ -87,7 +86,6 @@ results = Parallel(n_jobs=-1)(
     for params in ParameterGrid(param_grid)
 )
 
-# Save only the best result based on Recall
 best_result = max(results, key=lambda x: x["Recall"])
 
 with open('best_rf_metrics.json', 'w') as f:

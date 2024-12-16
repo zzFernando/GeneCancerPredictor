@@ -13,7 +13,6 @@ from sklearn.metrics import (
     mean_squared_error, cohen_kappa_score
 )
 
-# Configuração do dataset
 dataset_url = "https://sbcb.inf.ufrgs.br/data/cumida/Genes/Liver/GSE14520_U133A/Liver_GSE14520_U133A.csv"
 file_path = 'Liver_GSE14520_U133A.csv'
 
@@ -24,20 +23,16 @@ dataset = pd.read_csv(file_path)
 X, y = dataset.drop(['samples', 'type'], axis=1), dataset['type']
 y_binary = y.map({'HCC': 1, 'normal': 0})
 
-# Divide os dados em treino e teste
 X_train, X_test, y_train, y_test = train_test_split(X, y_binary, test_size=0.2, random_state=42)
 
-# Aplicar SMOTE apenas nos dados de treino
 smote = SMOTE(random_state=42)
 X_train_balanced, y_train_balanced = smote.fit_resample(X_train, y_train)
 
-# Escala os dados
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_balanced)
 X_test_scaled = scaler.transform(X_test)
-X_scaled = scaler.fit_transform(X)  # Escala todo o dataset
+X_scaled = scaler.fit_transform(X)
 
-# Randomized Search para SVM
 param_dist = {
     'C': [0.01, 0.1, 1, 10, 100],
     'gamma': [0.001, 0.01, 0.1, 1, 'scale'],
@@ -61,7 +56,6 @@ best_model = random_search.best_estimator_
 
 print(f"Melhores parâmetros: {random_search.best_params_}")
 
-# Avaliação no dataset completo
 y_all_pred = best_model.predict(X_scaled)
 accuracy = accuracy_score(y_binary, y_all_pred)
 precision = precision_score(y_binary, y_all_pred)
@@ -73,7 +67,6 @@ rmse = np.sqrt(mean_squared_error(y_binary, y_all_pred))
 kappa = cohen_kappa_score(y_binary, y_all_pred)
 conf_matrix = confusion_matrix(y_binary, y_all_pred).tolist()
 
-# Salvar resultados em um arquivo JSON
 result = {
     "Accuracy": accuracy,
     "Precision": precision,

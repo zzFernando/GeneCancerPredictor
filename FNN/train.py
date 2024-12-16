@@ -137,7 +137,6 @@ results = Parallel(n_jobs=4)(
     for params in ParameterGrid(param_grid)
 )
 
-# Save only the best result
 best_result = max(results, key=lambda x: x["Recall"])
 
 with open('best_fnn_metrics.json', 'w') as f:
